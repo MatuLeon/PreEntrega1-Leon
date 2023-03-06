@@ -8,9 +8,7 @@ function calcularIVA (arr){
     return total
 }
 
-function descuentoDebito (modoPago){
-    
-}
+
 const carritoCompra = []
 
 const listaHabitaciones = [ {id: 1, nombre: "Habitación individual", ubicación: "Frente, 2do piso", precio : 280.000, espacio: 1 },
@@ -30,27 +28,46 @@ listaHabitaciones.forEach (el=>{
     console.log(el.espacio)
 })
 
+let persona = prompt ("Hola y bienvenido/a, ingrese su nombre por favor")
+    while (persona == "" || persona.length <= 2){
+        alert ("Dato no valido")
+        persona = prompt("Hola y bienvenido, ingrese su nombre por favor");
+    }
 
-
-let rta = prompt ("¿Esta buscando donde hospedarse?" + "\nResponda si o no").toLowerCase()
-
+let rta = prompt ( "Hola " + persona + " ¿Esta buscando donde hospedarse?" + "\nResponda si o no").toLowerCase()
+console.log (rta + "Entramos al if")
     if (rta != "no"){
         let espacio = Number (prompt ("¿Para cuantas personas?"));
 
         if (listaHabitaciones.some( cantidad => cantidad.espacio >= espacio)){
-            carritoCompra.push(listaHabitaciones.find(cantidad => cantidad.espacio >= espacio))
-            alert("Aceptamos transferencias y tarjeta debito o credito")
+            carritoCompra.push(listaHabitaciones.find(cantidad => cantidad.espacio >= espacio));
+            console.log (carritoCompra);
+            alert("Aceptamos transferencias y tarjeta")
             let modoPago = prompt ("¿Paga con transferencia o tarjeta?").toUpperCase()
             let option1 = "TRANSFERENCIA"
             let option2 = "TARJETA"
-                if(modoPago == option1 ){
-                    
+            console.log (modoPago)
+                if(modoPago == option1 && modoPago != ""){
+                    function descuento (total , descuento){
+                        let resultado = ""
+                        resultado = total % descuento
+                        return resultado;
+                    }
+                }else if(modoPago == "TARJETA"){
+                    function recargo (total, descuento){
+                        let resultado = ""
+                        resultado = total % descuento
+                        console.log (resultado)
+                        return resultado
+                    }
                 }
+
         } else {
             alert ("No contamos con habitaciones disponibles")
         }
+    }else {
+        alert ( persona + " Sentite libre de chusmear nuestras ofertas")
     }
-
 
     calcularIVA (carritoCompra);
 
