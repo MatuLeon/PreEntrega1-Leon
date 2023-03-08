@@ -1,11 +1,11 @@
 console.log("Bienvenidos a Hotel LEON si esta buscando donde hosperdarse, esta en el lugar correcto!" + "" + "\nComplete el formulario");
 
-function calcularIVA (arr){
-    let total;
-    arr.forEach ( producto =>{
-        total = producto.precio * 1.21
+function calcularTotal (arr){
+    let resultado = 0;
+    arr.forEach ( element =>{
+        resultado += element.precio * 1.21
     })
-    return total
+    return resultado
 }
 
 
@@ -36,26 +36,43 @@ let persona = prompt ("Hola y bienvenido/a, ingrese su nombre por favor")
 
 let rta = prompt ( "Hola " + persona + " ¿Esta buscando donde hospedarse?" + "\nResponda si o no").toLowerCase()
 console.log (rta + "Entramos al if")
+
     if (rta != "no"){
+        
         let espacio = Number (prompt ("¿Para cuantas personas?"));
 
         if (listaHabitaciones.some( cantidad => cantidad.espacio >= espacio)){
             carritoCompra.push(listaHabitaciones.find(cantidad => cantidad.espacio >= espacio));
             console.log (carritoCompra);
+
             alert("Aceptamos transferencias y tarjeta")
+
             let modoPago = prompt ("¿Paga con transferencia o tarjeta?").toUpperCase()
+
             let option1 = "TRANSFERENCIA"
             let option2 = "TARJETA"
             console.log (modoPago)
+
+
                 if(modoPago == option1 && modoPago != ""){
-                    let aPagar = carritoCompra.precio.value
-                    console.log(aPagar)
+
+                    let aPagar = carritoCompra[0].precio -( carritoCompra[0].precio * 0.15);
+                    console.log ("Con el descuento del 15% le queda en $" + Math.round(aPagar))
         
                 }else if(modoPago == "TARJETA"){
-                    let aPagar = carritoCompra.indexOf("precio")* 13
-                    console.log (aPagar)
+
+
+                    let aPagar = carritoCompra[0].precio + (carritoCompra[0].precio* 0.13);
+                    console.log ("Con el recargo por tarjeta le queda en $" + Math.round(aPagar))
+                }else{
+
+
+                    alert ("Ingrese un modo de pago o presione 'ESC'");
+                    modoPago=prompt ("¿Paga con transferencia o tarjeta?").toUpperCase();
                 }
         } else {
+
+            
             alert ("No contamos con habitaciones disponibles")
         }
     }else {
@@ -64,8 +81,7 @@ console.log (rta + "Entramos al if")
 
 
 
-    calcularIVA (carritoCompra);
-
+    console.log("El total a pagar con impuesto IVA es de $" + calcularTotal (carritoCompra));
 
 
 
