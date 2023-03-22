@@ -4,11 +4,7 @@
     box-sizing: border-box;
 
 }
-body{
-    background: url(/assets/fondoHotel.jpg);
-    background-repeat: no-repeat;
-    background-size: cover;
-}
+
 
 h1{
     text-align: center;
