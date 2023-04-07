@@ -31,26 +31,71 @@ class ProductoController {
         });
     }
 
+    eventoAnadirCarrito(controladorCarrito){
+        this.listaHabitaciones.forEach(habitacion => {
+            const sumarCarrito = document.getElementById(`habitacion${habitacion.id}`)
+        
+            sumarCarrito.addEventListener("click", () => {
+        
+                controladorCarrito.anadir(habitacion)
+                controladorCarrito.limpiarDOM()
+                controladorCarrito.levantar
+                controladorCarrito.mostrarDOM(contenedor_carrito)
+                Toastify({
+                    text: "Añadido correctamente",
+                    duration: 2000,
+                    gravity: "bottom",
+                    position: "right",
+                    style: {
+                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                    },
+                }).showToast();
+        
+                controladorCarrito.mostrarPreciosDOM(precio, precio_con_iva)
+            })
+        })
+    }
+
 }
 
 
 class CarritoController {
     constructor() {
         this.listaCarrito = []
+        this.contenedor_carrito = document.getElementById("contenedor_carrito");
+        this.precio = document.getElementById ("precio")
+        this.precio_con_iva = document.getElementById ("precio_con_iva")
+        this.finalizar_compra = document.getElementById("finalizar_compra");
+
     }
 
     levantar() {
-        this.listaCarrito = JSON.parse(localStorage.getItem("listaCarrito")) || []
+        let obtenerListaJSON = localStorage.getItem("listaCarrito")
+        if (obtenerListaJSON){
+            this.listaCarrito = JSON.parse (obtenerListaJSON)
+            return true
+        }
+        return false
 
     }
 
 
     anadir(habitacion) {
-        this.listaCarrito.push(habitacion)
+
+        let existeProducto = this.listaCarrito.some(producto => producto.id == habitacion.id)
+
+        if (existeProducto){
+
+            const productoEncontrado = this.buscar(habitacion.id)
+            productoEncontrado.dias += 1
+        
+        }else{
+            this.listaCarrito.push(habitacion)
+
+        }
 
         let carritoJSON = JSON.stringify(this.listaCarrito)
         localStorage.setItem("listaCarrito", carritoJSON)
-
 
     }
 
@@ -60,38 +105,51 @@ class CarritoController {
         this.listaCarrito.splice(indice, 1)
     }
 
-    mostrarDOM(contenedor_carrito) {
 
-        //limpio contenedor
-        contenedor_carrito.innerHTML = ""
-        //muestro todo
-        this.listaCarrito.forEach(producto => {
-            contenedor_carrito.innerHTML += `
-            <div class="card mb-3" style="max-width: 540px;">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                    <img src="${producto.img}" class="img-fluid rounded-start" alt="...">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">${producto.nombre}</h5>
-                            <p class="card-text">
-                                    ${producto.ubicación}
-                            </p>
-                            <p class="card-text">
-                                <small class="text-body-secondary">$${producto.precio}</small>
-                            </p>
-                            <button id="borrar${producto.id}"><i class="fa-solid fa-trash"></i></button>
-                        </div>
+    productos_HTML (producto){
+        return `
+        <div class="card mb-3" style="max-width: 540px;">
+            <div class="row g-0">
+                <div class="col-md-4">
+                <img src="${producto.img}" class="img-fluid rounded-start" alt="...">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">${producto.nombre}</h5>
+                        <p class="card-text">
+                                ${producto.ubicación}
+                        </p>
+                        <p class="card-text">
+                            <small class="text-body-secondary">$${producto.precio}</small>
+                        </p>
+                        <p class = "card-text">
+                            <small class="text-body-secondary">dias de estadia:  ${producto.dias}</small>
+                        </p>
+
+                        <button id="borrar${producto.id}"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             </div>
-    
-            `
+        </div>
+
+        `
+    }
+
+    limpiarDOM(){
+        this.contenedor_carrito.innerHTML = ""
+    }
+
+    mostrarDOM() {
+        this.limpiarDOM()
+        this.listaCarrito.forEach(producto => {
+            this.contenedor_carrito.innerHTML += this.productos_HTML(producto)
         })
+        this.mostrarPreciosDOM()
+        this.eventoBorrar()
+    }
 
-        //evento para borrar producto con button
 
+    eventoBorrar(){
         this.listaCarrito.forEach(producto => {
             document.getElementById(`borrar${producto.id}`).addEventListener("click", () => {
 
@@ -103,15 +161,66 @@ class CarritoController {
 
                 //Actualizar DOM
 
-                this.mostrarDOM(contenedor_carrito)
+                this.mostrarDOM()
+                this.mostrarPreciosDOM()
             })
         })
     }
+    
 
     limpiar() {
         this.listaCarrito = []
         localStorage.removeItem("listaCarrito")
     }
+
+    mostrarPreciosDOM (){
+        this.precio.innerHTML = `$"${this.calcularTotal()}"`
+        this.precio_con_iva.innerHTML = `$"${this.calcularPrecioConIva()}"`
+    }
+
+    calcularTotal (){
+        return this.listaCarrito.reduce((acumulador, habitacion)=>acumulador + habitacion.precio * habitacion.dias,0)
+    }
+
+    calcularPrecioConIva (){
+        return this.calcularTotal() * 1.21;
+    }
+
+    buscar(id){
+        return this.listaCarrito.find (producto => producto.id == id)
+    }
+
+
+    finalizarCompra(){
+        this.finalizar_compra.addEventListener("click", () => {
+
+
+            if (this.listaCarrito.length > 0) {
+                this.limpiar()
+                this.mostrarDOM(contenedor_carrito)
+        
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: 'Reserva realizada',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            } else {
+                Swal.fire({
+                    position: 'center',
+                    icon: 'warning',
+                    title: 'Carrito vacio, debe agregar 1 producto al menos',
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+            }
+        
+            controladorCarrito.mostrarPreciosDOM(precio,precio_con_iva)
+        
+        })
+    }
+
 }
 
 //Objetos controladores
@@ -121,69 +230,23 @@ const controladorCarrito = new CarritoController();
 
 //VERIFICAR STORAGE
 controladorProducto.levantarProductos();
-controladorCarrito.levantar();
+const levantarAlgo = controladorCarrito.levantar();
+
+
 
 //DOM
 const contenedor_productos = document.getElementById("contenedor_productos");
 
-const contenedor_carrito = document.getElementById("contenedor_carrito");
 
-const finalizar_compra = document.getElementById("finalizar_compra");
+//Eventos y DOM
 
-//APP JS
-
-/*---Recorremos el array para agregar html a cada habitación---------*/
 controladorProducto.mostrarDOM(contenedor_productos);
-controladorCarrito.mostrarDOM(contenedor_carrito);
+
+controladorCarrito.mostrarDOM();
+
+controladorProducto.eventoAnadirCarrito(controladorCarrito)
+
+controladorCarrito.finalizarCompra()
 
 
 
-/*---Evento de click para sumar un producto al carrito--------- */
-
-controladorProducto.listaHabitaciones.forEach(habitacion => {
-    const sumarCarrito = document.getElementById(`habitacion${habitacion.id}`)
-
-    sumarCarrito.addEventListener("click", () => {
-
-        controladorCarrito.anadir(habitacion)
-        controladorCarrito.levantar
-        controladorCarrito.mostrarDOM(contenedor_carrito)
-        Toastify({
-            text: "Añadido correctamente",
-            duration: 2000,
-            gravity: "bottom", // `top` or `bottom`
-            position: "right", // `left`, `center` or `right`
-            style: {
-                background: "linear-gradient(to right, #00b09b, #96c93d)",
-            },
-        }).showToast();
-    })
-})
-
-
-finalizar_compra.addEventListener("click", () => {
-
-
-    if (controladorCarrito.listaCarrito.length > 0) {
-        controladorCarrito.limpiar()
-        controladorCarrito.mostrarDOM(contenedor_carrito)
-
-        Swal.fire({
-            position: 'center',
-            icon: 'success',
-            title: 'Reserva realizada',
-            showConfirmButton: false,
-            timer: 1500
-        })
-    } else {
-        Swal.fire({
-            position: 'center',
-            icon: 'warning',
-            title: 'Carrito vacio, debe agregar 1 producto al menos',
-            showConfirmButton: false,
-            timer: 2000
-        })
-    }
-
-
-})
