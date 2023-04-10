@@ -1,23 +1,17 @@
 class ProductoController {
     constructor() {
         this.listaHabitaciones = []
-    }
-
-
-    levantarProductos() {
-        this.listaHabitaciones = JSON.parse(localStorage.getItem("listaHabitaciones")) || []
-
+        this.contenedor_productos = document.getElementById("contenedor_productos");
 
     }
 
-
-    mostrarDOM(contenedor_productos) {
+    mostrarDOM() {
         //limpio
-        contenedor_productos.innerHTML = ""
+        this.contenedor_productos.innerHTML = ""
 
         //muestro toda la lista
         this.listaHabitaciones.forEach(habitacion => {
-            contenedor_productos.innerHTML += `
+            this.contenedor_productos.innerHTML += `
             <div class="card" style="width: 18rem;">
                 <img src="${habitacion.img}" class="card-img-top" alt="${habitacion.alt}">
                 <div class="card-body">
@@ -30,6 +24,18 @@ class ProductoController {
             </div>`
         });
     }
+
+
+
+    async levantarJSON(controladorCarrito){
+        let res = await fetch ("./js/api_productos.json")
+        this.listaHabitaciones = await res.json()
+        this.mostrarDOM()
+        this.eventoAnadirCarrito(controladorCarrito)
+    }
+
+
+
 
     eventoAnadirCarrito(controladorCarrito){
         this.listaHabitaciones.forEach(habitacion => {
@@ -229,24 +235,21 @@ const controladorCarrito = new CarritoController();
 
 
 //VERIFICAR STORAGE
-controladorProducto.levantarProductos();
+
 const levantarAlgo = controladorCarrito.levantar();
 
 
 
-//DOM
-const contenedor_productos = document.getElementById("contenedor_productos");
-
-
 //Eventos y DOM
-
-controladorProducto.mostrarDOM(contenedor_productos);
-
 controladorCarrito.mostrarDOM();
-
 controladorProducto.eventoAnadirCarrito(controladorCarrito)
 
+controladorProducto.levantarJSON(controladorCarrito)
+
+controladorProducto.mostrarDOM();
+
 controladorCarrito.finalizarCompra()
+
 
 
 
