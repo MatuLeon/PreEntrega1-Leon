@@ -72,6 +72,8 @@ class CarritoController {
         this.precio = document.getElementById ("precio")
         this.precio_con_iva = document.getElementById ("precio_con_iva")
         this.finalizar_compra = document.getElementById("finalizar_compra");
+        this.sumarDia = document.getElementsByClassName("sumar")
+        this.restarDia = document.getElementsByClassName("restar")
 
     }
 
@@ -130,6 +132,12 @@ class CarritoController {
                         </p>
                         <p class = "card-text">
                             <small class="text-body-secondary">dias de estadia:  ${producto.dias}</small>
+                            <span>
+                                <button class="sumar" id="sumar${producto.id}">+</button>
+                            </span>
+                            <span>
+                                <button class="restar" id="restar${producto.id}">-</button>
+                            </span>
                         </p>
 
                         <button id="borrar${producto.id}"><i class="fa-solid fa-trash"></i></button>
@@ -177,6 +185,12 @@ class CarritoController {
     limpiar() {
         this.listaCarrito = []
         localStorage.removeItem("listaCarrito")
+    }
+
+    sumar(){
+        this.sumarDia.addEventListener("click", ()=>{
+            //No logre crear la funcion sumar
+        })
     }
 
     mostrarPreciosDOM (){
